@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双声道合并状态 - LRC音声处理器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .task-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .status-box {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .status-processing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            background-color: #218838;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        .auto-refresh {
+            text-align: center;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .download-btn {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 80%;
+            }
+            .progress-bar {
+                height: 15px;
+            }
+            .back-btn {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 45%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .task-info p {
+                font-size: 14px;
+            }
+            .status-box {
+                padding: 10px;
+            }
+            .download-btn {
+                padding: 12px;
+                font-size: 16px;
+                width: 100%;
+            }
+            .back-btn {
+                padding: 8px;
+                font-size: 14px;
+                width: 48%;
+                margin: 5px auto;
+            }
+            .audio-preview-section audio {
+                height: 40px;
+            }
+        }
+        
+        /* 进度详情样式 */
+        .progress-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .progress-step {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        <a href="/stereo_merge" class="back-btn">🔄 重新合并</a>
+        
+        <h1>📊 双声道合并状态</h1>
+        
+        <div class="task-info">
+            <h3>🆔 任务ID</h3>
+            <p><code>{{ task_id }}</code></p>
+        </div>
+        
+        <div id="status-container">
+            <div class="status-box status-{{ task.status }}">
+                <h3>📋 当前状态</h3>
+                <p id="status-text">{{ task.progress }}</p>
+            </div>
+        </div>
+        
+        {% if task.status == 'processing' %}
+        <div class="progress-info">
+            <p>📊 进度: <span id="progress-text">{{ task.current|default(0) }} / {{ task.total|default(0) }}</span></p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: {{ task.progress_percent|default(0) }}%;">
+            </div>
+        </div>
+        <div class="progress-details">
+            <div class="progress-step">正在处理大型音频文件，请耐心等待...</div>
+            <div class="progress-step">处理过程分为多个阶段，每个阶段都有详细进度反馈</div>
+            <div class="progress-step">程序正在后台持续运行，请勿关闭页面</div>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'completed' %}
+        <div class="download-section">
+            <h3>📥 下载合并结果</h3>
+            <a href="/download_stereo/{{ task_id }}" class="download-btn">
+                🎧 下载合并音频
+            </a>
+        </div>
+        
+        <div class="audio-preview-section" style="margin-top: 30px;">
+            <h3>▶️ 在线试听</h3>
+            <audio controls style="width: 100%;">
+                <source src="/download_stereo/{{ task_id }}" type="audio/wav">
+                您的浏览器不支持音频播放。
+            </audio>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'failed' %}
+        <div class="alert alert-danger">
+            <h3>❌ 处理失败</h3>
+            <p>{{ task.get('error', '未知错误') }}</p>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'processing' %}
+        <div class="auto-refresh">
+            <p>⏱️ 页面将每2秒自动刷新</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // 自动刷新状态
+        function updateStatus() {
+            fetch('/api/stereo_merge/{{ task_id }}/status')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新状态显示
+                    const statusContainer = document.getElementById('status-container');
+                    const statusBox = statusContainer.querySelector('.status-box');
+                    const statusText = document.getElementById('status-text');
+                    
+                    // 更新状态样式
+                    statusBox.className = 'status-box status-' + data.status;
+                    statusText.textContent = data.progress;
+                    
+                    // 更新进度条
+                    if (data.status === 'processing' && data.total > 0) {
+                        const progressText = document.getElementById('progress-text');
+                        const progressFill = document.getElementById('progress-fill');
+                        
+                        if (progressText && progressFill) {
+                            progressText.textContent = data.current + ' / ' + data.total;
+                            progressFill.style.width = (data.progress_percent || 0) + '%';
+                        }
+                    }
+                    
+                    // 如果任务完成或失败，刷新页面显示下载链接
+                    if (data.status === 'completed' || data.status === 'failed') {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('状态更新失败:', error);
+                });
+        }
+        
+        // 如果任务还在进行中，设置自动刷新
+        const currentStatus = '{{ task.status }}';
+        if (currentStatus === 'processing') {
+            // 对于大文件处理，增加刷新频率以提供更好的用户体验
+            setInterval(updateStatus, 1000); // 每1秒刷新一次，提供更流畅的进度更新
+        }
+    </script>
+</body>
+</html>

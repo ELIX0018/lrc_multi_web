@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务确认 - LRC音声处理器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .task-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .confirmation-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #117a8b;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .btn {
+                display: block;
+                margin: 10px auto;
+                width: 80%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .btn {
+                padding: 15px;
+                font-size: 16px;
+                width: 100%;
+            }
+            .confirmation-box {
+                padding: 15px;
+            }
+            .task-info p {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        
+        <h1>⚠️ 任务确认</h1>
+        
+        <div class="confirmation-box">
+            <h3>检测到已完成的相同任务</h3>
+            <p>检测到您之前已经处理过相同的LRC文件：</p>
+            <div class="task-info">
+                <p><strong>已完成任务ID:</strong> <code>{{ existing_task_id }}</code></p>
+                <p><strong>处理时间:</strong> {{ existing_task.results.processing_time|round(2) }} 秒</p>
+                <p><strong>生成片段:</strong> {{ existing_task.results.segments_generated }}/{{ existing_task.results.segments_total }}</p>
+            </div>
+            <p>请选择您要执行的操作：</p>
+        </div>
+        
+        <form action="{{ url_for('task_action', task_id=task_id) }}" method="post">
+            <input type="hidden" name="existing_task_id" value="{{ existing_task_id }}">
+            
+            <div class="action-buttons">
+                <button type="submit" name="action" value="preview" class="btn btn-info">
+                    👁️ 直接预览
+                </button>
+                
+                <button type="submit" name="action" value="continue" class="btn btn-primary">
+                    ▶️ 继续生成（断点续传）
+                </button>
+                
+                <button type="submit" name="action" value="regenerate" class="btn btn-warning">
+                    🔄 重新生成
+                </button>
+            </div>
+        </form>
+        
+        <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <h4>操作说明：</h4>
+            <ul>
+                <li><strong>直接预览：</strong>直接查看之前已完成的任务结果</li>
+                <li><strong>继续生成：</strong>检查已有片段并继续生成未完成的部分</li>
+                <li><strong>重新生成：</strong>删除之前的处理结果并从头开始生成</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

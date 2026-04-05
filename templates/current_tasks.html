@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当前任务 - LRC音声处理器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        .task-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .task-section h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .task-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .task-id {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .task-status {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-processing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-queued {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .task-details {
+            font-size: 14px;
+        }
+        .task-progress {
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+        .no-tasks {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+        .refresh-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+        .refresh-btn:hover {
+            background-color: #218838;
+        }
+        .task-file {
+            font-weight: bold;
+            color: #333;
+        }
+        .task-time {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .task-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .task-status {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        
+        <h1>📋 当前任务列表</h1>
+        
+        <!-- 刷新按钮 -->
+        <button class="refresh-btn" onclick="location.reload()">🔄 刷新</button>
+        
+        <!-- LRC处理任务 -->
+        <div class="task-section">
+            <h2>🎵 LRC音频合成任务</h2>
+            {% if processing_tasks %}
+                {% for task_id, task in processing_tasks.items() %}
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-id">任务ID: {{ task_id }}</div>
+                        <div class="task-status status-{{ task.status }}">
+                            {% if task.status == 'queued' %}等待中
+                            {% elif task.status == 'processing' %}处理中
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-file">文件: {{ task.lrc_filename }}</div>
+                        <div class="task-time">创建时间: {{ task.created_time|ctime }}</div>
+                        <div class="task-progress">
+                            <div>进度: {{ task.progress }}</div>
+                            {% if task.current_segment and task.total_segments %}
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ (task.current_segment / task.total_segments * 100)|int }}%"></div>
+                            </div>
+                            <div>{{ task.current_segment }} / {{ task.total_segments }} 段</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="/task/{{ task_id }}">查看详情 →</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tasks">暂无正在进行的LRC音频合成任务</div>
+            {% endif %}
+        </div>
+        
+        <!-- 双声道合并任务 -->
+        <div class="task-section">
+            <h2>🎧 双声道合并任务</h2>
+            {% if stereo_tasks %}
+                {% for task_id, task in stereo_tasks.items() %}
+                <div class="task-item">
+                    <div class="task-header">
+                        <div class="task-id">任务ID: {{ task_id }}</div>
+                        <div class="task-status status-{{ task.status }}">
+                            {% if task.status == 'processing' %}处理中{% endif %}
+                        </div>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-time">创建时间: {{ task.created_time|ctime }}</div>
+                        <div class="task-progress">
+                            <div>进度: {{ task.progress }}</div>
+                            {% if task.progress_percent %}
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ task.progress_percent }}%"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="/stereo_merge_status/{{ task_id }}">查看详情 →</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tasks">暂无正在进行的双声道合并任务</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // 每30秒自动刷新一次
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

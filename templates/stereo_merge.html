@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双声道合并 - LRC音声处理器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-form {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .file-input {
+            margin: 15px 0;
+        }
+        .file-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .file-input input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .position-selector {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .position-selector label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .position-selector select {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .volume-control {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .volume-control label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .volume-control input[type="range"] {
+            width: 200px;
+            margin: 0 10px;
+        }
+        .volume-value {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        .back-btn {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .upload-form {
+                padding: 15px;
+            }
+            .position-selector select, .volume-control input[type="range"] {
+                width: 100%;
+                margin-top: 5px;
+            }
+            .volume-control input[type="range"] {
+                margin: 10px 0;
+            }
+            .submit-btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
+            .position-selector label, .volume-control label {
+                display: block;
+                margin-bottom: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .file-input label {
+                font-size: 14px;
+            }
+            .file-input small {
+                font-size: 12px;
+            }
+            .position-selector, .volume-control {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        
+        <h1>🎧 双声道合并工具</h1>
+        
+        <!-- Flash消息 -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- 上传表单 -->
+        <form action="{{ url_for('stereo_merge') }}" method="post" enctype="multipart/form-data" class="upload-form">
+            <h3>📁 上传音频文件</h3>
+            
+            <div class="file-input">
+                <label for="audio1">🎵 音频文件 1:</label>
+                <input type="file" id="audio1" name="audio1" accept=".wav,.mp3,.flac" required>
+                <small>支持WAV、MP3、FLAC格式</small>
+            </div>
+            
+            <div class="file-input">
+                <label for="audio2">🎵 音频文件 2:</label>
+                <input type="file" id="audio2" name="audio2" accept=".wav,.mp3,.flac" required>
+                <small>支持WAV、MP3、FLAC格式</small>
+            </div>
+            
+            <!-- 音频1设置 -->
+            <div class="position-selector">
+                <label for="audio1_position">🔊 音频1声道位置:</label>
+                <select id="audio1_position" name="audio1_position">
+                    <option value="left">左声道</option>
+                    <option value="right">右声道</option>
+                    <option value="center">中间声道</option>
+                    <option value="adaptive">自适应</option>
+                    <option value="original">原声</option>
+                </select>
+            </div>
+            
+            <div class="volume-control">
+                <label for="audio1_volume">🔊 音频1音量:</label>
+                <input type="range" id="audio1_volume" name="audio1_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio1')">
+                <span id="audio1_volume_value" class="volume-value">1.0</span>
+            </div>
+            
+            <!-- 音频2设置 -->
+            <div class="position-selector">
+                <label for="audio2_position">🔊 音频2声道位置:</label>
+                <select id="audio2_position" name="audio2_position">
+                    <option value="right">右声道</option>
+                    <option value="left">左声道</option>
+                    <option value="center">中间声道</option>
+                    <option value="adaptive">自适应</option>
+                    <option value="original">原声</option>
+                </select>
+            </div>
+            
+            <div class="volume-control">
+                <label for="audio2_volume">🔊 音频2音量:</label>
+                <input type="range" id="audio2_volume" name="audio2_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio2')">
+                <span id="audio2_volume_value" class="volume-value">1.0</span>
+            </div>
+            
+            <button type="submit" class="submit-btn">🚀 开始合并</button>
+        </form>
+        
+        <div class="info-section">
+            <h3>ℹ️ 使用说明</h3>
+            <ul>
+                <li>上传两个音频文件进行双声道合并</li>
+                <li>可以分别设置每个音频文件在最终输出中的声道位置</li>
+                <li>可以调节每个音频文件的音量大小</li>
+                <li>支持左声道、右声道、中间声道、自适应和原声五种声道位置</li>
+                <li>音量调节范围为0.0-2.0，1.0为原始音量</li>
+                <li>"自适应"：音频1默认放在左声道，音频2默认放在右声道</li>
+                <li>"原声"：不进行左右声道处理，直接和另一个音声进行混合</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // 更新音量显示
+        function updateVolumeDisplay(audioId) {
+            const volumeSlider = document.getElementById(audioId + '_volume');
+            const volumeValue = document.getElementById(audioId + '_volume_value');
+            volumeValue.textContent = volumeSlider.value;
+        }
+        
+        // 初始化音量显示
+        document.addEventListener('DOMContentLoaded', function() {
+            updateVolumeDisplay('audio1');
+            updateVolumeDisplay('audio2');
+        });
+    </script>
+</body>
+</html>
