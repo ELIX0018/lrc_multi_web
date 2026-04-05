@@ -131,6 +131,177 @@
             margin-top: 30px;
         }
         
+        /* 拖拽上传区域样式 */
+        .drop-zone {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 15px 0;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .drop-zone.dragover {
+            border-color: #007bff;
+            background-color: #e7f1ff;
+        }
+        .drop-zone.has-file {
+            border-color: #28a745;
+            background-color: #f8fff8;
+        }
+        .drop-zone .drop-icon {
+            font-size: 48px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .drop-zone.dragover .drop-icon {
+            color: #007bff;
+        }
+        .drop-zone.has-file .drop-icon {
+            color: #28a745;
+        }
+        .drop-zone .drop-text {
+            color: #6c757d;
+            font-size: 16px;
+        }
+        .drop-zone .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            text-align: left;
+            display: none;
+        }
+        .drop-zone.has-file .file-info {
+            display: block;
+        }
+        .file-info .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+        .file-info .file-meta {
+            font-size: 13px;
+            color: #666;
+        }
+        .file-info .file-meta span {
+            margin-right: 15px;
+        }
+        .file-info .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .file-info .remove-btn:hover {
+            background-color: #c82333;
+        }
+        .drop-zone .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .drop-zone.has-error .error-message {
+            display: block;
+        }
+        
+        /* 音频设置卡片样式 */
+        .audio-settings-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .audio-settings-card .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .audio-settings-card .card-header .audio-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .audio-settings-card .card-body {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .audio-settings-card .setting-group.position-group {
+            flex: 0 0 220px;
+            min-width: 220px;
+        }
+        .audio-settings-card .setting-group.volume-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        .audio-settings-card .setting-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .audio-settings-card .setting-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .audio-settings-card .setting-group .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .audio-settings-card .setting-group .slider-container .slider-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .audio-settings-card .setting-group input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .audio-settings-card .setting-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+        .audio-settings-card .setting-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+        .audio-settings-card .setting-group .volume-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
         /* 移动端优化 */
         @media (max-width: 768px) {
             body {
@@ -142,21 +313,36 @@
             .upload-form {
                 padding: 15px;
             }
-            .position-selector select, .volume-control input[type="range"] {
-                width: 100%;
-                margin-top: 5px;
+            .drop-zone {
+                padding: 20px;
             }
-            .volume-control input[type="range"] {
-                margin: 10px 0;
+            .audio-settings-card .card-body {
+                flex-direction: column;
+            }
+            .audio-settings-card .setting-group.position-group,
+            .audio-settings-card .setting-group.volume-group {
+                flex: 1;
+                min-width: 100%;
+            }
+            .audio-settings-card .setting-group .slider-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .audio-settings-card .setting-group .slider-container label {
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .audio-settings-card .setting-group .slider-container .slider-wrapper {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .audio-settings-card .setting-group .slider-container .volume-value {
+                align-self: center;
             }
             .submit-btn {
                 width: 100%;
                 padding: 15px;
                 font-size: 18px;
-            }
-            .position-selector label, .volume-control label {
-                display: block;
-                margin-bottom: 5px;
             }
         }
         
@@ -167,14 +353,11 @@
             h1 {
                 font-size: 24px;
             }
-            .file-input label {
+            .drop-zone .drop-text {
                 font-size: 14px;
             }
-            .file-input small {
-                font-size: 12px;
-            }
-            .position-selector, .volume-control {
-                padding: 10px;
+            .audio-settings-card {
+                padding: 15px;
             }
         }
     </style>
@@ -195,55 +378,95 @@
         {% endwith %}
         
         <!-- 上传表单 -->
-        <form action="{{ url_for('stereo_merge') }}" method="post" enctype="multipart/form-data" class="upload-form">
+        <form action="{{ url_for('stereo_merge') }}" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
             <h3>📁 上传音频文件</h3>
             
-            <div class="file-input">
-                <label for="audio1">🎵 音频文件 1:</label>
-                <input type="file" id="audio1" name="audio1" accept=".wav,.mp3,.flac" required>
-                <small>支持WAV、MP3、FLAC格式</small>
+            <!-- 音频1上传区域 -->
+            <div class="drop-zone" id="dropZone1">
+                <div class="drop-icon">📁</div>
+                <div class="drop-text">拖拽文件到此处或点击选择音频文件 1</div>
+                <div class="file-info">
+                    <div class="file-name"></div>
+                    <div class="file-meta">
+                        <span class="file-size"></span>
+                        <span class="file-upload-time"></span>
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeFile(1)">移除文件</button>
+                </div>
+                <div class="error-message"></div>
+                <input type="file" id="audio1" name="audio1" accept=".wav,.mp3,.flac" required style="display: none;">
             </div>
             
-            <div class="file-input">
-                <label for="audio2">🎵 音频文件 2:</label>
-                <input type="file" id="audio2" name="audio2" accept=".wav,.mp3,.flac" required>
-                <small>支持WAV、MP3、FLAC格式</small>
+            <!-- 音频2上传区域 -->
+            <div class="drop-zone" id="dropZone2">
+                <div class="drop-icon">📁</div>
+                <div class="drop-text">拖拽文件到此处或点击选择音频文件 2</div>
+                <div class="file-info">
+                    <div class="file-name"></div>
+                    <div class="file-meta">
+                        <span class="file-size"></span>
+                        <span class="file-upload-time"></span>
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeFile(2)">移除文件</button>
+                </div>
+                <div class="error-message"></div>
+                <input type="file" id="audio2" name="audio2" accept=".wav,.mp3,.flac" required style="display: none;">
             </div>
             
-            <!-- 音频1设置 -->
-            <div class="position-selector">
-                <label for="audio1_position">🔊 音频1声道位置:</label>
-                <select id="audio1_position" name="audio1_position">
-                    <option value="left">左声道</option>
-                    <option value="right">右声道</option>
-                    <option value="center">中间声道</option>
-                    <option value="adaptive">自适应</option>
-                    <option value="original">原声</option>
-                </select>
+            <!-- 音频1设置卡片 -->
+            <div class="audio-settings-card">
+                <div class="card-header">
+                    <div class="audio-title">🎵 音频 1 设置</div>
+                </div>
+                <div class="card-body">
+                    <div class="setting-group position-group">
+                        <label for="audio1_position">声道位置</label>
+                        <select id="audio1_position" name="audio1_position">
+                            <option value="left">左声道</option>
+                            <option value="right">右声道</option>
+                            <option value="center">中间声道</option>
+                            <option value="adaptive">自适应</option>
+                            <option value="original">原声</option>
+                        </select>
+                    </div>
+                    <div class="setting-group volume-group">
+                        <div class="slider-container">
+                            <label for="audio1_volume">音量</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="audio1_volume" name="audio1_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio1')">
+                            </div>
+                            <span id="audio1_volume_value" class="volume-value">1.0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="volume-control">
-                <label for="audio1_volume">🔊 音频1音量:</label>
-                <input type="range" id="audio1_volume" name="audio1_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio1')">
-                <span id="audio1_volume_value" class="volume-value">1.0</span>
-            </div>
-            
-            <!-- 音频2设置 -->
-            <div class="position-selector">
-                <label for="audio2_position">🔊 音频2声道位置:</label>
-                <select id="audio2_position" name="audio2_position">
-                    <option value="right">右声道</option>
-                    <option value="left">左声道</option>
-                    <option value="center">中间声道</option>
-                    <option value="adaptive">自适应</option>
-                    <option value="original">原声</option>
-                </select>
-            </div>
-            
-            <div class="volume-control">
-                <label for="audio2_volume">🔊 音频2音量:</label>
-                <input type="range" id="audio2_volume" name="audio2_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio2')">
-                <span id="audio2_volume_value" class="volume-value">1.0</span>
+            <!-- 音频2设置卡片 -->
+            <div class="audio-settings-card">
+                <div class="card-header">
+                    <div class="audio-title">🎵 音频 2 设置</div>
+                </div>
+                <div class="card-body">
+                    <div class="setting-group position-group">
+                        <label for="audio2_position">声道位置</label>
+                        <select id="audio2_position" name="audio2_position">
+                            <option value="right">右声道</option>
+                            <option value="left">左声道</option>
+                            <option value="center">中间声道</option>
+                            <option value="adaptive">自适应</option>
+                            <option value="original">原声</option>
+                        </select>
+                    </div>
+                    <div class="setting-group volume-group">
+                        <div class="slider-container">
+                            <label for="audio2_volume">音量</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="audio2_volume" name="audio2_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio2')">
+                            </div>
+                            <span id="audio2_volume_value" class="volume-value">1.0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <button type="submit" class="submit-btn">🚀 开始合并</button>
@@ -264,17 +487,146 @@
     </div>
     
     <script>
-        // 更新音量显示
+        /**
+         * 更新音量显示
+         * @param {string} audioId - 音频ID（audio1或audio2）
+         */
         function updateVolumeDisplay(audioId) {
             const volumeSlider = document.getElementById(audioId + '_volume');
             const volumeValue = document.getElementById(audioId + '_volume_value');
             volumeValue.textContent = volumeSlider.value;
         }
         
-        // 初始化音量显示
+        /**
+         * 格式化文件大小
+         * @param {number} bytes - 文件字节数
+         * @returns {string} 格式化后的文件大小字符串
+         */
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        /**
+         * 格式化时间
+         * @param {Date} date - 日期对象
+         * @returns {string} 格式化后的时间字符串
+         */
+        function formatTime(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+        
+        /**
+         * 验证文件类型
+         * @param {File} file - 文件对象
+         * @returns {boolean} 是否为允许的文件类型
+         */
+        function validateFileType(file) {
+            const allowedTypes = ['.wav', '.mp3', '.flac'];
+            const fileName = file.name.toLowerCase();
+            return allowedTypes.some(type => fileName.endsWith(type));
+        }
+        
+        /**
+         * 处理文件选择
+         * @param {number} fileIndex - 文件索引（1或2）
+         * @param {File} file - 文件对象
+         */
+        function handleFileSelect(fileIndex, file) {
+            const dropZone = document.getElementById('dropZone' + fileIndex);
+            const fileInput = document.getElementById('audio' + fileIndex);
+            const errorMessage = dropZone.querySelector('.error-message');
+            
+            dropZone.classList.remove('has-file', 'has-error');
+            errorMessage.style.display = 'none';
+            
+            if (!validateFileType(file)) {
+                dropZone.classList.add('has-error');
+                errorMessage.textContent = '不支持的文件格式！请上传WAV、MP3或FLAC格式的音频文件';
+                errorMessage.style.display = 'block';
+                fileInput.value = '';
+                return;
+            }
+            
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            dropZone.classList.add('has-file');
+            dropZone.querySelector('.file-name').textContent = file.name;
+            dropZone.querySelector('.file-size').textContent = '大小: ' + formatFileSize(file.size);
+            dropZone.querySelector('.file-upload-time').textContent = '上传时间: ' + formatTime(new Date());
+        }
+        
+        /**
+         * 移除文件
+         * @param {number} fileIndex - 文件索引（1或2）
+         */
+        function removeFile(fileIndex) {
+            const dropZone = document.getElementById('dropZone' + fileIndex);
+            const fileInput = document.getElementById('audio' + fileIndex);
+            const errorMessage = dropZone.querySelector('.error-message');
+            
+            dropZone.classList.remove('has-file', 'has-error');
+            fileInput.value = '';
+            errorMessage.style.display = 'none';
+        }
+        
+        /**
+         * 初始化拖拽上传功能
+         */
+        function initDropZone() {
+            for (let i = 1; i <= 2; i++) {
+                const dropZone = document.getElementById('dropZone' + i);
+                const fileInput = document.getElementById('audio' + i);
+                
+                dropZone.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'BUTTON') {
+                        fileInput.click();
+                    }
+                });
+                
+                dropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    dropZone.classList.add('dragover');
+                });
+                
+                dropZone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    dropZone.classList.remove('dragover');
+                });
+                
+                dropZone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    dropZone.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        handleFileSelect(i, files[0]);
+                    }
+                });
+                
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        handleFileSelect(i, e.target.files[0]);
+                    }
+                });
+            }
+        }
+        
+        /**
+         * 初始化页面
+         */
         document.addEventListener('DOMContentLoaded', function() {
             updateVolumeDisplay('audio1');
             updateVolumeDisplay('audio2');
+            initDropZone();
         });
     </script>
 </body>
