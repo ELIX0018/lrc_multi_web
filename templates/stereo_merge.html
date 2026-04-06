@@ -29,9 +29,15 @@
             border-radius: 10px;
             text-align: center;
             margin-bottom: 20px;
+            position: relative;
+        }
+        .upload-form.drag-over {
+            border-color: #007bff;
+            background-color: #f0f8ff;
         }
         .file-input {
             margin: 15px 0;
+            position: relative;
         }
         .file-input label {
             display: block;
@@ -39,44 +45,113 @@
             font-weight: bold;
             color: #555;
         }
-        .file-input input[type="file"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
+        .upload-area {
+            position: relative;
+            border: 2px dashed #ddd;
             border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .position-selector {
-            margin: 15px 0;
-            padding: 15px;
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        .upload-area.drag-over {
+            border-color: #007bff;
+            background-color: #e6f3ff;
+        }
+        .upload-area.has-file {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-area-text {
+            color: #666;
+        }
+        .upload-area-text.file-selected {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+        }
+        .clear-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+        .file-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .file-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .audio-channel-control {
+            margin: 20px 0;
+            padding: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f8f9fa;
         }
-        .position-selector label {
-            display: inline-block;
-            margin-right: 10px;
-            font-weight: bold;
+        .audio-channel-control h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
         }
-        .position-selector select {
-            width: 200px;
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .control-row label {
+            width: 120px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .control-row select {
+            flex: 1;
+            min-width: 150px;
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 3px;
+            margin-right: 10px;
         }
         .volume-control {
-            margin: 15px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f8f9fa;
-        }
-        .volume-control label {
-            display: inline-block;
-            margin-right: 10px;
-            font-weight: bold;
+            flex: 2;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
         }
         .volume-control input[type="range"] {
-            width: 200px;
+            flex: 1;
             margin: 0 10px;
         }
         .volume-value {
@@ -130,6 +205,27 @@
             border-radius: 5px;
             margin-top: 30px;
         }
+        .drag-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #007bff;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .drag-overlay.active {
+            opacity: 1;
+        }
         
         /* 移动端优化 */
         @media (max-width: 768px) {
@@ -142,9 +238,18 @@
             .upload-form {
                 padding: 15px;
             }
-            .position-selector select, .volume-control input[type="range"] {
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .control-row label {
                 width: 100%;
-                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+            .control-row select,
+            .volume-control {
+                width: 100%;
+                margin: 5px 0;
             }
             .volume-control input[type="range"] {
                 margin: 10px 0;
@@ -153,10 +258,6 @@
                 width: 100%;
                 padding: 15px;
                 font-size: 18px;
-            }
-            .position-selector label, .volume-control label {
-                display: block;
-                margin-bottom: 5px;
             }
         }
         
@@ -173,7 +274,7 @@
             .file-input small {
                 font-size: 12px;
             }
-            .position-selector, .volume-control {
+            .audio-channel-control {
                 padding: 10px;
             }
         }
@@ -195,55 +296,72 @@
         {% endwith %}
         
         <!-- 上传表单 -->
-        <form action="{{ url_for('stereo_merge') }}" method="post" enctype="multipart/form-data" class="upload-form">
+        <form action="{{ url_for('stereo_merge') }}" method="post" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+            <div class="drag-overlay" id="dragOverlay">📁 拖拽文件到这里上传</div>
             <h3>📁 上传音频文件</h3>
             
-            <div class="file-input">
+            <div class="file-input" id="fileInput1">
                 <label for="audio1">🎵 音频文件 1:</label>
-                <input type="file" id="audio1" name="audio1" accept=".wav,.mp3,.flac" required>
+                <div class="upload-area" data-input="audio1">
+                    <input type="file" id="audio1" name="audio1" accept=".wav,.mp3,.flac" required>
+                    <div class="upload-area-text">点击或拖拽文件到这里</div>
+                </div>
                 <small>支持WAV、MP3、FLAC格式</small>
+                <div id="audio1_info" class="file-info"></div>
+                <div id="audio1_error" class="file-error"></div>
+                <button type="button" class="clear-btn" data-input="audio1" style="display: none;">清除文件</button>
             </div>
             
-            <div class="file-input">
+            <div class="file-input" id="fileInput2">
                 <label for="audio2">🎵 音频文件 2:</label>
-                <input type="file" id="audio2" name="audio2" accept=".wav,.mp3,.flac" required>
+                <div class="upload-area" data-input="audio2">
+                    <input type="file" id="audio2" name="audio2" accept=".wav,.mp3,.flac" required>
+                    <div class="upload-area-text">点击或拖拽文件到这里</div>
+                </div>
                 <small>支持WAV、MP3、FLAC格式</small>
+                <div id="audio2_info" class="file-info"></div>
+                <div id="audio2_error" class="file-error"></div>
+                <button type="button" class="clear-btn" data-input="audio2" style="display: none;">清除文件</button>
             </div>
             
             <!-- 音频1设置 -->
-            <div class="position-selector">
-                <label for="audio1_position">🔊 音频1声道位置:</label>
-                <select id="audio1_position" name="audio1_position">
-                    <option value="left">左声道</option>
-                    <option value="right">右声道</option>
-                    <option value="center">中间声道</option>
-                    <option value="adaptive">自适应</option>
-                    <option value="original">原声</option>
-                </select>
-            </div>
-            
-            <div class="volume-control">
-                <label for="audio1_volume">🔊 音频1音量:</label>
-                <input type="range" id="audio1_volume" name="audio1_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio1')">
-                <span id="audio1_volume_value" class="volume-value">1.0</span>
+            <div class="audio-channel-control">
+                <h4>🔊 音频1参数设置</h4>
+                <div class="control-row">
+                    <label for="audio1_position">声道位置:</label>
+                    <select id="audio1_position" name="audio1_position">
+                        <option value="left">左声道</option>
+                        <option value="right">右声道</option>
+                        <option value="center">中间声道</option>
+                        <option value="adaptive">自适应</option>
+                        <option value="original">原声</option>
+                    </select>
+                    <div class="volume-control">
+                        <label for="audio1_volume">音量:</label>
+                        <input type="range" id="audio1_volume" name="audio1_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio1')">
+                        <span id="audio1_volume_value" class="volume-value">1.0</span>
+                    </div>
+                </div>
             </div>
             
             <!-- 音频2设置 -->
-            <div class="position-selector">
-                <label for="audio2_position">🔊 音频2声道位置:</label>
-                <select id="audio2_position" name="audio2_position">
-                    <option value="right">右声道</option>
-                    <option value="left">左声道</option>
-                    <option value="center">中间声道</option>
-                    <option value="adaptive">自适应</option>
-                    <option value="original">原声</option>
-                </select>
-            </div>
-            
-            <div class="volume-control">
-                <label for="audio2_volume">🔊 音频2音量:</label>
-                <input type="range" id="audio2_volume" name="audio2_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio2')">
-                <span id="audio2_volume_value" class="volume-value">1.0</span>
+            <div class="audio-channel-control">
+                <h4>🔊 音频2参数设置</h4>
+                <div class="control-row">
+                    <label for="audio2_position">声道位置:</label>
+                    <select id="audio2_position" name="audio2_position">
+                        <option value="right">右声道</option>
+                        <option value="left">左声道</option>
+                        <option value="center">中间声道</option>
+                        <option value="adaptive">自适应</option>
+                        <option value="original">原声</option>
+                    </select>
+                    <div class="volume-control">
+                        <label for="audio2_volume">音量:</label>
+                        <input type="range" id="audio2_volume" name="audio2_volume" min="0" max="2" step="0.1" value="1.0" oninput="updateVolumeDisplay('audio2')">
+                        <span id="audio2_volume_value" class="volume-value">1.0</span>
+                    </div>
+                </div>
             </div>
             
             <button type="submit" class="submit-btn">🚀 开始合并</button>
@@ -271,10 +389,228 @@
             volumeValue.textContent = volumeSlider.value;
         }
         
-        // 初始化音量显示
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 验证文件类型
+        function validateFile(file, inputId) {
+            const allowedExtensions = ['.wav', '.mp3', '.flac'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            const errorElement = document.getElementById(inputId + '_error');
+            
+            if (!allowedExtensions.includes(fileExtension)) {
+                errorElement.textContent = '不支持的文件类型，请上传WAV、MP3或FLAC格式的音频文件。';
+                return false;
+            } else {
+                errorElement.textContent = '';
+                return true;
+            }
+        }
+        
+        // 显示文件信息
+        function displayFileInfo(file, inputId) {
+            const infoElement = document.getElementById(inputId + '_info');
+            const now = new Date();
+            const uploadTime = now.toLocaleString('zh-CN');
+            const fileSize = formatFileSize(file.size);
+            
+            infoElement.textContent = `上传时间: ${uploadTime} | 文件大小: ${fileSize}`;
+        }
+        
+        // 处理文件选择
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                const inputId = input.id;
+                if (validateFile(file, inputId)) {
+                    displayFileInfo(file, inputId);
+                    // 显示清除按钮
+                    const clearButton = document.querySelector(`.clear-btn[data-input="${inputId}"]`);
+                    if (clearButton) {
+                        clearButton.style.display = 'inline-block';
+                    }
+                    // 更新上传区域显示
+                    const uploadArea = document.querySelector(`.upload-area[data-input="${inputId}"]`);
+                    if (uploadArea) {
+                        uploadArea.classList.add('has-file');
+                        const uploadAreaText = uploadArea.querySelector('.upload-area-text');
+                        if (uploadAreaText) {
+                            uploadAreaText.classList.add('file-selected');
+                            uploadAreaText.textContent = '文件已上传';
+                        }
+                        // 添加文件名称显示
+                        let fileNameElement = uploadArea.querySelector('.file-name');
+                        if (!fileNameElement) {
+                            fileNameElement = document.createElement('div');
+                            fileNameElement.className = 'file-name';
+                            uploadArea.appendChild(fileNameElement);
+                        }
+                        fileNameElement.textContent = file.name;
+                    }
+                }
+            }
+        }
+        
+        // 处理拖拽上传
+        function setupDragAndDrop() {
+            const form = document.getElementById('uploadForm');
+            const overlay = document.getElementById('dragOverlay');
+            
+            // 全局拖拽事件
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                form.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // 全局高亮效果
+            ['dragenter', 'dragover'].forEach(eventName => {
+                form.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                form.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                form.classList.add('drag-over');
+                overlay.classList.add('active');
+            }
+            
+            function unhighlight() {
+                form.classList.remove('drag-over');
+                overlay.classList.remove('active');
+            }
+            
+            // 处理文件放置到整个表单
+            form.addEventListener('drop', handleFormDrop, false);
+            
+            function handleFormDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    // 根据文件数量分配到不同的输入框
+                    if (files.length === 1) {
+                        // 优先填充第一个为空的输入框
+                        const audio1 = document.getElementById('audio1');
+                        const audio2 = document.getElementById('audio2');
+                        
+                        if (!audio1.files.length) {
+                            audio1.files = files;
+                            handleFileSelect(audio1);
+                        } else if (!audio2.files.length) {
+                            audio2.files = files;
+                            handleFileSelect(audio2);
+                        }
+                    } else if (files.length === 2) {
+                        // 分别填充两个输入框
+                        document.getElementById('audio1').files = files;
+                        document.getElementById('audio2').files = files;
+                        handleFileSelect(document.getElementById('audio1'));
+                        handleFileSelect(document.getElementById('audio2'));
+                    }
+                }
+            }
+            
+            // 为每个上传区域设置拖拽事件
+            const uploadAreas = document.querySelectorAll('.upload-area');
+            uploadAreas.forEach(area => {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    area.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    area.addEventListener(eventName, function() {
+                        this.classList.add('drag-over');
+                    }, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    area.addEventListener(eventName, function() {
+                        this.classList.remove('drag-over');
+                    }, false);
+                });
+                
+                // 处理文件放置到指定区域
+                area.addEventListener('drop', function(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    const inputId = this.getAttribute('data-input');
+                    
+                    if (files.length > 0) {
+                        const input = document.getElementById(inputId);
+                        input.files = files;
+                        handleFileSelect(input);
+                    }
+                }, false);
+            });
+        }
+        
+        // 处理文件清除
+        function setupClearButtons() {
+            const clearButtons = document.querySelectorAll('.clear-btn');
+            clearButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const inputId = this.getAttribute('data-input');
+                    const input = document.getElementById(inputId);
+                    const infoElement = document.getElementById(inputId + '_info');
+                    const errorElement = document.getElementById(inputId + '_error');
+                    
+                    // 重置文件输入
+                    input.value = '';
+                    // 清空信息和错误
+                    infoElement.textContent = '';
+                    errorElement.textContent = '';
+                    // 隐藏清除按钮
+                    this.style.display = 'none';
+                    // 重置上传区域显示
+                    const uploadArea = document.querySelector(`.upload-area[data-input="${inputId}"]`);
+                    if (uploadArea) {
+                        uploadArea.classList.remove('has-file');
+                        const uploadAreaText = uploadArea.querySelector('.upload-area-text');
+                        if (uploadAreaText) {
+                            uploadAreaText.classList.remove('file-selected');
+                            uploadAreaText.textContent = '点击或拖拽文件到这里';
+                        }
+                        // 移除文件名称显示
+                        const fileNameElement = uploadArea.querySelector('.file-name');
+                        if (fileNameElement) {
+                            uploadArea.removeChild(fileNameElement);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始化音量显示
             updateVolumeDisplay('audio1');
             updateVolumeDisplay('audio2');
+            
+            // 绑定文件选择事件
+            document.getElementById('audio1').addEventListener('change', function() {
+                handleFileSelect(this);
+            });
+            document.getElementById('audio2').addEventListener('change', function() {
+                handleFileSelect(this);
+            });
+            
+            // 设置拖拽上传
+            setupDragAndDrop();
+            
+            // 设置清除按钮
+            setupClearButtons();
         });
     </script>
 </body>
